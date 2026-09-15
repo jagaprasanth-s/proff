@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillRAG | Professional Skill Definition RAG</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="h-full flex flex-col font-sans bg-slate-900 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- HEADER -->
+  <header id="mainNavbar" class="hidden sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigateHome()">
+        <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
+          <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-bold text-base text-white tracking-tight">Skill<span class="text-indigo-400">RAG</span></span>
+          <span class="ml-2 px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full bg-slate-800 text-slate-400 border border-slate-700">Prototype</span>
+        </div>
+      </div>
+
+      <!-- Segmented View Switcher -->
+      <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button id="navUserTab" onclick="switchDashboard('user')" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Ask Assistant</span>
+        </button>
+        <button id="navAdminTab" onclick="switchDashboard('admin')" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Admin Hub</span>
+        </button>
+      </div>
+
+      <!-- Right Profile & Status -->
+      <div class="flex items-center gap-3 text-xs">
+        <div id="dbStatusPill" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono text-[11px]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="navDbCount">0 Chunks</span>
+        </div>
+        <div id="userBadge" class="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800">
+          <span id="navUserName" class="text-slate-300 font-medium">User</span>
+          <span id="navUserRole" class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400">USER</span>
+        </div>
+        <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Logout">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-start">
+
+    <!-- 1. LOGIN VIEW -->
+    <div id="loginView" class="my-auto w-full max-w-2xl mx-auto py-12">
+      <div class="text-center mb-8">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-600/10 border border-indigo-500/30 flex items-center justify-center mx-auto mb-4 text-indigo-400 shadow-sm">
+          <i data-lucide="book-open-check" class="w-7 h-7"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Professional Skill Definition RAG</h1>
+        <p class="mt-2 text-sm text-slate-400">
+          Grounded skill definitions, authoritative standards, and comparative differentiations.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            <h2 class="text-lg font-bold text-white mb-1">Knowledge Seeker</h2>
+            <p class="text-xs text-slate-400 leading-relaxed mb-6">
+              Ask questions to receive crisp, point-by-point definitions, key differences, and verified source citations.
+            </p>
+          </div>
+          <button onclick="loginAs('user')" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md transition-all flex items-center justify-center gap-2">
+            <span>Enter as User</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950/70 border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <h2 class="text-lg font-bold text-white mb-1">Knowledge Curator</h2>
+            <p class="text-xs text-slate-400 leading-relaxed mb-6">
+              Upload PDF standards. Text is automatically chunked, classified, and stored in the SQLite database.
+            </p>
+          </div>
+          <button onclick="loginAs('admin')" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs border border-slate-700 transition-all flex items-center justify-center gap-2">
+            <span>Enter as Admin</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. USER DASHBOARD -->
+    <div id="userView" class="hidden w-full space-y-6">
+      <div class="max-w-3xl mx-auto w-full pt-4">
+        <div class="text-center mb-5">
+          <h2 class="text-2xl font-bold text-white tracking-tight">Ask Skill or Standard</h2>
+          <p class="text-xs text-slate-400 mt-1">Get clean, bulleted definitions, criteria, and differences from official standards.</p>
+        </div>
+
+        <form onsubmit="handleUserSearch(event)" class="relative flex items-center">
+          <div class="absolute left-4 pointer-events-none text-slate-400">
+            <i data-lucide="search" class="w-5 h-5"></i>
+          </div>
+          <input 
+            type="text" 
+            id="userQueryInput" 
+            placeholder="e.g. section-3(M), Rayleigh criterion, industrial training, or Patentability Criteria..." 
+            class="w-full pl-12 pr-28 py-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+            required
+          >
+          <button 
+            type="submit" 
+            id="btnSearch"
+            class="absolute right-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md transition-all flex items-center gap-1.5"
+          >
+            <span>Ask</span>
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          </button>
+        </form>
+
+        <!-- Prompt Chips -->
+        <div class="flex flex-wrap items-center gap-1.5 mt-3 justify-center text-xs">
+          <span class="text-slate-500 text-[11px]">Popular:</span>
+          <button onclick="setQueryPrompt('section-3(M)')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Section-3(M)
+          </button>
+          <button onclick="setQueryPrompt('Rayleigh criterion')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Rayleigh Criterion
+          </button>
+          <button onclick="setQueryPrompt('industrial training')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Industrial Training
+          </button>
+          <button onclick="setQueryPrompt('Criteria for Patentability')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Patentability Criteria
+          </button>
+          <button onclick="setQueryPrompt('Data Analyst vs Data Scientist')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Data Analyst vs Data Scientist
+          </button>
+          <button onclick="setQueryPrompt('Prompt Engineering')" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
+            Prompt Engineering
+          </button>
+        </div>
+      </div>
+
+      <!-- RAG RESULTS AREA (POINT-BY-POINT) -->
+      <div id="ragResultsArea" class="max-w-3xl mx-auto w-full hidden space-y-5 pt-2">
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-6 space-y-5 shadow-lg">
+          
+          <!-- Result Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800/80">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span id="ragResultSkillBadge" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  Domain
+                </span>
+                <span id="ragResultFrameworkBadge" class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-800 text-slate-400">
+                  Framework
+                </span>
+              </div>
+              <h3 id="ragResultTitle" class="text-xl font-bold text-white tracking-tight">Skill Name</h3>
+            </div>
+            <div>
+              <span class="px-2.5 py-1 rounded-md bg-emerald-950/50 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Grounded Answer</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- PILLAR 1: IMPORTANT POINTS (BULLETS) -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="list-checks" class="w-4 h-4 text-indigo-400"></i>
+              <span>Important Points & Core Meaning</span>
+            </h4>
+            <div id="ragResultDefinition"></div>
+          </div>
+
+          <!-- PILLAR 2: KEY DIFFERENCES (BULLETS) -->
+          <div class="space-y-2 pt-2 border-t border-slate-800/60">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="git-pull-request" class="w-4 h-4 text-amber-400"></i>
+              <span>Key Differences & Boundaries</span>
+            </h4>
+            <div id="ragResultDifferences"></div>
+            
+            <div class="flex flex-wrap items-center gap-1.5 pt-2">
+              <span class="text-[11px] text-slate-500">Related competencies:</span>
+              <div id="ragRelatedSkillsChips" class="flex flex-wrap gap-1.5"></div>
+            </div>
+          </div>
+
+          <!-- PILLAR 3: AUTHORITATIVE CITATION -->
+          <div class="space-y-2 pt-2 border-t border-slate-800/60">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+              <span>Authoritative Source Citation</span>
+            </h4>
+            <div id="ragSourcesList" class="space-y-2"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAXONOMY & RECENT SEARCHES -->
+      <div class="max-w-3xl mx-auto w-full grid grid-cols-1 sm:grid-cols-3 gap-5 pt-4">
+        <div class="sm:col-span-2 rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="folder-tree" class="w-4 h-4 text-indigo-400"></i>
+              <span>Indexed Competency Taxonomy</span>
+            </h4>
+            <span class="text-[11px] text-slate-500 font-mono">SQLite DB</span>
+          </div>
+          <div id="taxonomySkillsList" class="max-h-60 overflow-y-auto space-y-3 pr-1 text-xs"></div>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="history" class="w-4 h-4 text-slate-400"></i>
+              <span>Recent Inquiries</span>
+            </h4>
+          </div>
+          <div id="recentQueriesList" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. ADMIN DASHBOARD -->
+    <div id="adminView" class="hidden w-full space-y-6">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <span class="text-[11px] text-slate-400 font-medium">Total Chunks</span>
+          <h3 id="statTotalChunks" class="text-2xl font-black text-white mt-1">0</h3>
+          <span class="text-[10px] text-emerald-400">In SQLite</span>
+        </div>
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <span class="text-[11px] text-slate-400 font-medium">Unique Skills</span>
+          <h3 id="statTotalSkills" class="text-2xl font-black text-white mt-1">0</h3>
+          <span class="text-[10px] text-indigo-400">Across domains</span>
+        </div>
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <span class="text-[11px] text-slate-400 font-medium">Domain Categories</span>
+          <h3 id="statTotalCategories" class="text-2xl font-black text-white mt-1">0</h3>
+          <span class="text-[10px] text-sky-400">Auto-classified</span>
+        </div>
+        <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4">
+          <span class="text-[11px] text-slate-400 font-medium">Standard Docs</span>
+          <h3 id="statTotalDocs" class="text-2xl font-black text-white mt-1">0</h3>
+          <span class="text-[10px] text-amber-400">Ingested PDFs</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800">
+        <div>
+          <h3 class="text-sm font-bold text-white">Document & Standards Ingestion</h3>
+          <p class="text-xs text-slate-400">Upload PDF standards or load benchmark frameworks.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openUploadModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow flex items-center gap-1.5 transition-all">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Upload Standard PDF</span>
+          </button>
+          <button id="btnSeedSample" onclick="seedSampleFrameworks()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition-all">
+            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            <span>Load SFIA & O*NET</span>
+          </button>
+          <button id="btnSeedEcf" onclick="uploadEcfSamplePdf()" class="px-3 py-2 rounded-xl bg-sky-950 hover:bg-sky-900 text-sky-300 text-xs font-medium border border-sky-800/60 flex items-center gap-1.5 transition-all">
+            <i data-lucide="file-plus" class="w-3.5 h-3.5"></i>
+            <span>Load European e-CF</span>
+          </button>
+          <button id="btnReprocess" onclick="reprocessAllUploadedFiles()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition-all" title="Re-indexes all uploaded documents">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Re-index Chunks</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Documents Table & Chunk Explorer -->
+      <div class="rounded-2xl bg-slate-950 border border-slate-800 p-5 space-y-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+          <i data-lucide="files" class="w-4 h-4 text-indigo-400"></i>
+          <span>Ingested Documents</span>
+        </h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="pb-2">Filename</th>
+                <th class="pb-2">Framework</th>
+                <th class="pb-2">Chunks</th>
+                <th class="pb-2">Size</th>
+                <th class="pb-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminDocumentsList"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chunks Inspector -->
+      <div class="rounded-2xl bg-slate-950 border border-slate-800 p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
+            <span>Persistent Chunks Inspector</span>
+          </h4>
+          <input 
+            type="text" 
+            id="adminChunkSearchInput" 
+            oninput="handleChunkSearchFilter(this.value)" 
+            placeholder="Filter chunks by keyword..." 
+            class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+          >
+        </div>
+        <div id="adminChunksList" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- UPLOAD MODAL -->
+  <div id="uploadModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="file-up" class="w-5 h-5 text-indigo-400"></i>
+          <span>Ingest New Standard Document</span>
+        </h3>
+        <button onclick="closeUploadModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Standard / Regulatory Framework</label>
+          <select id="inputFramework" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500">
+            <option value="Occupational Standard / Legal Framework">Occupational Standard / Legal Framework</option>
+            <option value="SFIA 8 (Skills Framework for the Information Age)">SFIA 8 (Skills Framework for the Information Age)</option>
+            <option value="O*NET 28.0 (Occupational Information Network)">O*NET 28.0 (Occupational Information Network)</option>
+            <option value="European e-Competence Framework (e-CF)">European e-Competence Framework (e-CF)</option>
+            <option value="NIST Cybersecurity Framework">NIST Cybersecurity Framework</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Upload PDF File</label>
+          <div class="relative border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 text-center cursor-pointer transition-colors bg-slate-950">
+            <input type="file" id="inputFile" accept=".pdf,.txt" onchange="handleFileSelect(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            <i data-lucide="upload-cloud" class="w-8 h-8 text-indigo-400 mx-auto mb-2"></i>
+            <p id="fileNameDisplay" class="text-xs text-slate-300">Click or drag & drop PDF standard file here</p>
+          </div>
+        </div>
+
+        <button type="submit" id="btnSubmitUpload" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md transition-all flex items-center justify-center gap-2">
+          <span>Process, Classify & Store Chunks</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
